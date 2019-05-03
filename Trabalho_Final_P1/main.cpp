@@ -127,10 +127,10 @@ int* swap_arr (int **matriz, int* sol, int n)
     copy(sol, sol+n+1, retorno);
     copy(sol, sol+n+1, new_sol);
 
-    for(indice_base=0; indice_base<n-1; indice_base++)
+    for(indice_base=0; indice_base<n-2; indice_base++)
     {
 
-        for(indice_troca=indice_base+1; indice_troca<n; indice_troca++)
+        for(indice_troca=indice_base+1; indice_troca<n-1; indice_troca++)
         {
             temp = new_sol[indice_base];
             new_sol[indice_base] = new_sol[indice_troca];
@@ -152,6 +152,12 @@ int* swap_arr (int **matriz, int* sol, int n)
         }
 
     }
+    /*cout<<"Solucao do sawp:" <<endl;
+    for(int j = 0; j<=n; j++)
+                cout << retorno[j] << ' ';
+    cout <<endl;
+    */
+
     return retorno;
 }
 
@@ -177,12 +183,6 @@ int* doisOpt (int **matriz, int* sol, int n)
 
         for(j=i+2; j<n-1; j++)
         {
-            /*
-            for(int k = i; k<j-1; k++) //calcula o custo dos elemento da particap
-            {
-                custo_part+=matriz[sol[k]][sol[k+1]];
-            }
-            */
             int aresta_desc1 = matriz[sol[i-1]][sol[i]];
             int aresta_desc2 = matriz[sol[j]][sol[j+1]];
             int aresta_con1 = matriz[sol[i-1]][sol[j]];
@@ -217,22 +217,16 @@ int* doisOpt (int **matriz, int* sol, int n)
                 }
 
             }
-          //  cout<< "(i,j): " << i <<' '<< j << endl;
-
-          //  cout << "sol:     ";
-         //   for(int j = 0; j<=n; j++)
-          //      cout << sol[j] << ' ';
-         //       cout<<endl;
-
-         //   cout << "new_sol: ";
-         //   for(int j = 0; j<=n; j++)
-        //        cout << new_sol[j] << ' ';
-        //        cout<<endl;
 
         }
 
     }
+    /*cout<<"Solucao do 2-opt:" <<endl;
+    for(int j = 0; j<=n; j++)
+                cout << new_sol[j] << ' ';
+    cout <<endl;
     return new_sol;
+    */
 }
 
 int * VND(int **matriz, int *sol, int n)
@@ -303,7 +297,7 @@ int main (int argc, char *argv[])
     static int dist_vnd = calcula_dist(m, sol_otima, n);
     cout<< endl << "distancia percorrida: " << dist_vnd;
 
-    ofstream fsaida("solução_" + nomeinst + ".txt");
+    ofstream fsaida("solucao_" + nomeinst + ".txt");
     fsaida << "Instancia: " <<  nomeinst << endl;
     fsaida << "Solucao: " << dist_vnd;
     fsaida.close();
