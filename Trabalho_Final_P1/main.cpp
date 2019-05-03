@@ -225,8 +225,9 @@ int* doisOpt (int **matriz, int* sol, int n)
     for(int j = 0; j<=n; j++)
                 cout << new_sol[j] << ' ';
     cout <<endl;
-    return new_sol;
     */
+    return new_sol;
+
 }
 
 int * VND(int **matriz, int *sol, int n)
