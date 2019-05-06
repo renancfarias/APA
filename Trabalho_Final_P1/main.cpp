@@ -127,10 +127,10 @@ int* swap_arr (int **matriz, int* sol, int n)
     copy(sol, sol+n+1, retorno);
     copy(sol, sol+n+1, new_sol);
 
-    for(indice_base=0; indice_base<n-2; indice_base++)
+    for(indice_base=1; indice_base<n-1; indice_base++)
     {
 
-        for(indice_troca=indice_base+1; indice_troca<n-1; indice_troca++)
+        for(indice_troca=indice_base+1; indice_troca<n; indice_troca++)
         {
             temp = new_sol[indice_base];
             new_sol[indice_base] = new_sol[indice_troca];
@@ -178,10 +178,10 @@ int* doisOpt (int **matriz, int* sol, int n)
 
     static int i, j, k, m;
 
-    for(i=1; i<n-3; i++)
+    for(i=1; i<n-2; i++)
     {
 
-        for(j=i+2; j<n-1; j++)
+        for(j=i+2; j<n; j++)
         {
             int aresta_desc1 = matriz[sol[i-1]][sol[i]];
             int aresta_desc2 = matriz[sol[j]][sol[j+1]];
