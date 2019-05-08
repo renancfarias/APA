@@ -3,6 +3,7 @@
 #include<vector>
 #include<string>
 #include<sstream>
+#include<time.h>
 
 using namespace std;
 
@@ -58,11 +59,18 @@ void le_arquivo (const string &nome, string &nomeinst, int &n, int **&ma)
       myfile.close();
 }
 
+void printsol(int *sol, int n)
+{
+    for(int j = 0; j<=n; j++)
+                cout << sol[j] << ' ';
+}
+/*##################### HEURISTICA CONSTRUTIVA ##########################*/
 
 int nearest_neighbor(int *&solucao, int **&matriz, int n)
 {
      solucao = (int*)malloc((n+1)*sizeof(int));
      int *visitados = (int*)malloc((n)*sizeof(int));
+     for (int i=0; i<n; i++) {visitados[i]= 0;}
 
      int s_index = 0;
      int menor_dist = INT_MAX;
@@ -114,15 +122,15 @@ int calcula_dist (int **matriz, int *sol, int n)
 
 int* swap_arr (int **matriz, int* sol, int n)
 {
-    cout<< "executando sawp"<< endl;
-    static int *new_sol =  (int*) malloc(n*sizeof(int));
-    static int *retorno = (int*) malloc(n*sizeof(int));
-    static int indice_base = 0;
-    static int indice_troca = 1;
-    static int custo = calcula_dist(matriz, sol, n);
+   // cout<< "executando sawp"<< endl;
+    int *new_sol =  (int*) malloc((n+1)*sizeof(int));
+    int *retorno =  (int*) malloc((n+1)*sizeof(int));
+    int indice_base = 0;
+    int indice_troca = 1;
+    int custo = calcula_dist(matriz, sol, n);
 
-    static int k = 0;
-    static int custo_novo = 0;
+    int k = 0;
+    int custo_novo = 0;
     int temp;
     copy(sol, sol+n+1, retorno);
     copy(sol, sol+n+1, new_sol);
@@ -135,36 +143,23 @@ int* swap_arr (int **matriz, int* sol, int n)
             temp = new_sol[indice_base];
             new_sol[indice_base] = new_sol[indice_troca];
             new_sol[indice_troca] = temp;
-
-           // for(int j = 0; j<=n; j++)
-           //     cout << new_sol[j] << ' ';
-
             custo_novo = calcula_dist(matriz, new_sol, n);
-           // cout<<endl<<"CUSTO NOVO:" << custo_novo<<endl;
-
             if(custo_novo<custo)
             {
                 custo = custo_novo;
                 copy(new_sol, new_sol+n+1, retorno);
             }
-        copy(sol, sol+n+1, new_sol);
-        custo_novo = 0;
+            copy(sol, sol+n+1, new_sol);
+            custo_novo = 0;
         }
-
     }
-    /*cout<<"Solucao do sawp:" <<endl;
-    for(int j = 0; j<=n; j++)
-                cout << retorno[j] << ' ';
-    cout <<endl;
-    */
-
     return retorno;
 }
 
 int* doisOpt (int **matriz, int* sol, int n)
 {
-    cout<< "executando 2opt"<< endl;
-    static int *new_sol =  (int*) malloc(n*sizeof(int));
+    //cout<< "executando 2opt"<< endl;
+    static int *new_sol =  (int*) malloc((n+1)*sizeof(int));
     //static int *retorno = sol;
 
     //copy(sol, sol+n+1, new_sol);
@@ -230,6 +225,7 @@ int* doisOpt (int **matriz, int* sol, int n)
 
 }
 
+
 int * VND(int **matriz, int *sol, int n)
 {
     int r = 2; //numero de estruturas de vizinhança
@@ -260,8 +256,159 @@ int * VND(int **matriz, int *sol, int n)
     return sol;
 }
 
+/*##################### METAHEURISTICA ##########################*/
+
+int* gera_sol_rand (int n)
+{
+    int *sol = (int*)malloc((n+1)*sizeof(int));
+    int *existe = (int*)malloc((n)*sizeof(int));
+    for (int i=0; i<n; i++) {existe[i]= 0;}
+
+    int v0 = rand()%n;
+    sol[0] = v0;
+    existe[v0] = 1;
+
+    //for(int i =1; i<n; i++)
+    int i = 1;
+    while(i<n)
+    {
+        int v = rand()%n;
+        if(existe[v] == 0)
+        {
+            sol[i] = v;
+            existe[v] = 1;
+            i++;
+        }
+    }
+    sol[n] = v0;
+    return sol;
+
+}
+
+int* swap_arr_rand (int* sol, int n)
+{
+    //cout<< "executando sawp"<< endl;
+    int *new_sol =  (int*) malloc((n+1)*sizeof(int));
+    int x = 0;
+    int y = 0;
+    int temp;
+
+
+    // indices das posicoes a serem trocadas
+    while(x==y || x==0 || y==0)
+    {
+     x = rand()%(n);
+     y = rand()%(n);
+    }
+
+    copy(sol, sol+n+1, new_sol);
+
+    temp = new_sol[x];
+    new_sol[x] = new_sol[y];
+    new_sol[y] = temp;
+
+    return new_sol;
+}
+
+int* doisOpt_rand (int* sol, int n)
+{
+    //cout<< "executando 2opt"<< endl;
+    static int *new_sol =  (int*) malloc((n+1)*sizeof(int));
+    static int x;
+    static int y;
+
+    while((abs(x-y)<2) || x==0 || y==0)
+    {
+     x = rand()%(n);
+     y = rand()%(n);
+    }
+
+
+    int temp;
+
+    copy(sol, sol+n+1, new_sol);
+
+    int i = x;
+    int j = y;
+
+    if(x<y)
+        {
+            while(i<j)
+            {
+                temp = new_sol[i];
+                new_sol[i] = new_sol[j];
+                new_sol[j] = temp;
+                i++;
+                j--;
+            }
+        }
+    else
+    {
+            while(j<i)
+            {
+                temp = new_sol[i];
+                new_sol[i] = new_sol[j];
+                new_sol[j] = temp;
+                i--;
+                j++;
+            }
+    }
+
+    return new_sol;
+
+}
+
+int* VNS(int **m, int n)
+{
+    int *s0; // solução inicial
+    nearest_neighbor(s0,m,n);
+    int r = 2; //numeros de estruturas de vizinhaça
+    int *s = s0; //soluçao corrente
+    int* s1;
+    int* s2;
+    int sem_melhora = 0; // conta o numero de iteraçoes sem melhora
+    int k;  //tipo de estrutura corrente
+    while(sem_melhora<10)//criterio de parada
+    {
+        k = 0;
+        while(k<r)
+        {
+            switch(k)
+            {
+                case 0: s1 = swap_arr_rand(s, n);
+                break;
+
+                case 1: s1 = doisOpt_rand(s, n);
+                break;
+            }
+
+            s2 = VND(m, s1, n);
+
+
+            int dist_s = calcula_dist(m,s,n);
+            int dist_s2 = calcula_dist(m,s2,n);
+
+            if(dist_s2 < dist_s)
+            {
+                s = s2;
+                k = 0;
+            }
+            else
+            {
+                k++;
+                sem_melhora++;
+            }
+
+        }
+
+    }
+    return s;
+}
+
+
 int main (int argc, char *argv[])
 {
+    srand((unsigned)time(0));
 
     static int n;
     static string nomeinst;
@@ -271,8 +418,61 @@ int main (int argc, char *argv[])
 
     le_arquivo(argv[1], nomeinst, n, m);
 
+    int op;
+    int nexec;
+    int dist;
+
+    clock_t t;
+
     cout << "Instancia: " <<  nomeinst << endl;
-    cout << "n: " <<  n << endl;
+    //cout << "n: " <<  n << endl;
+    cout << "Resolver por:\n(1) heristica construtiva\n(2)meta heuristica\n";
+    cin >> op;
+    cout << "Digite o numero de execucoes: ";
+    cin >> nexec;
+
+    if(op == 1)
+    {
+        ofstream fsaida("solucao_contrutiva_" + nomeinst + ".txt");
+        for(int i = 0; i<nexec; i++)
+        {
+            t = clock();
+            nearest_neighbor(sol, m, n);
+            sol = VND(m, sol, n);
+            dist = calcula_dist(m, sol, n);
+            t = clock() - t;
+            cout << "\niteracao #" << i;
+            cout << "\nsolucao: " <<dist << "tempo: " << (float)t/CLOCKS_PER_SEC <<endl;
+
+            //fsaida << "\niteracao #" << i;
+            fsaida <<dist << ' ' << (float)t/CLOCKS_PER_SEC<<endl;
+
+        }
+        fsaida.close();
+    }
+    else
+    {
+        ofstream fsaida("solucao_meta_" + nomeinst + ".txt");
+        for(int i = 0; i<nexec; i++)
+        {
+            t = clock();
+            sol = VNS(m,n);
+            dist = calcula_dist(m, sol, n);
+            t = clock() - t;
+            cout << "\niteracao #" << i;
+            cout << "\nsolucao: " <<dist << "tempo: " << (float)t/CLOCKS_PER_SEC <<endl;
+
+           // fsaida << "\niteracao #" << i;
+            fsaida <<dist << ' ' << (float)t/CLOCKS_PER_SEC <<endl;
+
+        }
+        fsaida.close();
+    }
+
+
+
+
+    /*
 
     cout << "resultado do nearest neighbor:"<<endl;
     static int dist = nearest_neighbor(sol, m, n);
@@ -304,6 +504,19 @@ int main (int argc, char *argv[])
     fsaida.close();
 
     return 0;
+    */
+
+    /*cout << "executando metaheuristica: " << endl;
+    sol = VNS(m, n);
+    cout<<"Solucao do VNS:" <<endl;
+    for(int j = 0; j<=n; j++)
+                cout << sol[j] << ' ';
+
+    int dist = calcula_dist(m,sol,n);
+    cout << endl << "distancia percorrida: " << dist;
+    */
+
+
 
 }
 
