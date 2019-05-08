@@ -74,7 +74,7 @@ int nearest_neighbor(int *&solucao, int **&matriz, int n)
 
      int s_index = 0;
      int menor_dist = INT_MAX;
-     int cidade_inicial = 0;
+     int cidade_inicial = rand()%n;
      int total_dist = 0;
      int cidade_atual;
      int prox_cidade;
@@ -256,7 +256,7 @@ int * VND(int **matriz, int *sol, int n)
     return sol;
 }
 
-/*##################### METAHEURISTICA ##########################*/
+/*##################### META-HEURISTICA ##########################*/
 
 int* gera_sol_rand (int n)
 {
@@ -424,12 +424,18 @@ int main (int argc, char *argv[])
 
     clock_t t;
 
+    double media_tempo =0;
+    double media_solucao=0;
+    int melhor_sol=INT_MAX;
+
     cout << "Instancia: " <<  nomeinst << endl;
     //cout << "n: " <<  n << endl;
     cout << "Resolver por:\n(1) heristica construtiva\n(2)meta heuristica\n";
     cin >> op;
-    cout << "Digite o numero de execucoes: ";
-    cin >> nexec;
+    //cout << "Digite o numero de execucoes: ";
+    //cin >> nexec;
+
+    nexec = 10;
 
     if(op == 1)
     {
@@ -441,13 +447,21 @@ int main (int argc, char *argv[])
             sol = VND(m, sol, n);
             dist = calcula_dist(m, sol, n);
             t = clock() - t;
-            cout << "\niteracao #" << i;
-            cout << "\nsolucao: " <<dist << "tempo: " << (float)t/CLOCKS_PER_SEC <<endl;
+            media_solucao += dist;
+            media_tempo += (double)t/CLOCKS_PER_SEC;
+            if(dist < melhor_sol)
+                melhor_sol = dist;
+            //cout << "\niteracao #" << i;
+
 
             //fsaida << "\niteracao #" << i;
-            fsaida <<dist << ' ' << (float)t/CLOCKS_PER_SEC<<endl;
+
 
         }
+        cout << "\nmedia solucao: " <<dist << " melhor sol: " << melhor_sol << " media tempo: " << (float)t/CLOCKS_PER_SEC <<endl;
+        media_solucao = media_solucao/(double)nexec;
+        media_tempo = media_tempo/(double)nexec;
+        fsaida << media_solucao <<' ' << melhor_sol << ' ' << media_tempo <<endl;
         fsaida.close();
     }
     else
@@ -459,13 +473,19 @@ int main (int argc, char *argv[])
             sol = VNS(m,n);
             dist = calcula_dist(m, sol, n);
             t = clock() - t;
-            cout << "\niteracao #" << i;
-            cout << "\nsolucao: " <<dist << "tempo: " << (float)t/CLOCKS_PER_SEC <<endl;
+            media_solucao += dist;
+            media_tempo += (double)t/CLOCKS_PER_SEC;
+            if(dist < melhor_sol)
+                melhor_sol = dist;
 
            // fsaida << "\niteracao #" << i;
-            fsaida <<dist << ' ' << (float)t/CLOCKS_PER_SEC <<endl;
+            //fsaida <<dist << ' ' << (float)t/CLOCKS_PER_SEC <<endl;
 
         }
+        cout << "\nmedia solucao: " <<dist << " melhor sol: " << melhor_sol << " media tempo: " << (float)t/CLOCKS_PER_SEC <<endl;
+        media_solucao = media_solucao/(double)nexec;
+        media_tempo = media_tempo/(double)nexec;
+        fsaida << media_solucao <<' ' << melhor_sol << ' ' << media_tempo <<endl;
         fsaida.close();
     }
 
